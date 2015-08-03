@@ -17,34 +17,27 @@ namespace GoogleLoginSample
 {
 	[Activity ( Label = "GoogleLogin" , MainLauncher = true , Icon = "@drawable/icon" )]
 	public class MainActivity : Activity
-	{ 
+	{  
 		string access_token;  
-		ProgressDialog progress;
+		ProgressDialog progress;  
+		const string googUesrInfoAccessleUrl = "https://www.googleapis.com/oauth2/v1/userinfo?access_token={0}";  
 		GoogleInfo googleInfo;
-		const string googleUrl = "https://www.googleapis.com/oauth2/v1/userinfo?access_token={0}"; 
-
 		protected override void OnCreate ( Bundle bundle )
 		{
 			base.OnCreate ( bundle ); 
 			SetContentView ( Resource.Layout.Main ); 
 			LoginByGoogle (true); 
 		}
-
-
+  
 		void LoginByGoogle (bool allowCancel)
-		{  
-			//Google  credentials  for Project, need to register in developer.google.com
-			//Client id has to be generated  from google page by providing hash code from  keystore
-			//redirecturi : is the page to be shown after successful login,here shown sample page from one of the running application
-			//for this any of the youmeus hosted page can be taken 
+		{   
 			var auth = new OAuth2Authenticator ( clientId: "847549521106-35dvaoe5jafmc5tuk2ll5054********.apps.googleusercontent.com" ,
 				scope: "https://www.googleapis.com/auth/userinfo.email" ,
 				authorizeUrl: new Uri ( "https://accounts.google.com/o/oauth2/auth" ) , 
-				redirectUrl: new Uri ( "http://*********.com/********.aspx" ) , 
+				redirectUrl: new Uri ( "https://www.googleapis.com/plus/v1/people/me" ) , 
 				getUsernameAsync: null ); 
 			
-			auth.AllowCancel = allowCancel;   
-
+			auth.AllowCancel = allowCancel;    
 			auth.Completed += async (sender , e ) =>
 			{  
 				if ( !e.IsAuthenticated )
@@ -52,9 +45,9 @@ namespace GoogleLoginSample
 					Toast.MakeText(this,"Fail to authenticate!",ToastLength.Short).Show(); 
 					return;
 				} 
-				e.Account.Properties.TryGetValue ( "access_token" , out access_token ); 
-				//bool isValid=;
-				if(await fnGetInfo ())
+				e.Account.Properties.TryGetValue ( "access_token" , out access_token );  
+
+				if(await fnGetProfileInfoFromGoogle ())
 				{
 					Toast.MakeText ( this , "Authentcated successfully" , ToastLength.Short ).Show ();
 				}
@@ -63,16 +56,16 @@ namespace GoogleLoginSample
 			var intent = auth.GetUI ( this );
 			StartActivity ( intent ); 
 		}
- 
-		async Task<bool> fnGetInfo()
+
+		async Task<bool> fnGetProfileInfoFromGoogle()
 		{ 
 			progress =  ProgressDialog.Show (this,"","Please wait..."); 
 			bool isValid=false;
-			string userInfo = await fnDownloadString (string.Format(googleUrl, access_token ));  
+			//Google API REST request
+			string userInfo = await fnDownloadString (string.Format(googUesrInfoAccessleUrl, access_token ));  
 			if ( userInfo != "Exception" )
 			{ 
-				googleInfo = JsonConvert.DeserializeObject<GoogleInfo> ( userInfo ); 
-				Console.WriteLine(string.Format("Email id : {0}", googleInfo.email));   
+				googleInfo = JsonConvert.DeserializeObject<GoogleInfo> ( userInfo );   
 				isValid = true;
 			}
 			else
@@ -118,8 +111,28 @@ namespace GoogleLoginSample
 
 			return strResultData;
 		}
-
-
+	
+		//login in iOS
+//		void LoginByGoogle(bool allowCancel)
+//		{
+//			var auth = new OAuth2Authenticator (clientId , "https://www.googleapis.com/auth/userinfo.email" ,
+//				new Uri ( "https://accounts.google.com/o/oauth2/auth" ) , 
+//				new Uri ( "http://********.net/aspxLoginSuccess.aspx" ) , null );  
+//			auth.AllowCancel = allowCancel;   
+//			string access_token;
+//			auth.Completed +=async (sender , e ) =>
+//			{  	if(e.IsAuthenticated)
+//				{
+//					e.Account.Properties.TryGetValue ( "access_token" , out access_token ); 
+//					await fnGetProfileInfoFromGoogle(access_token);
+//				} 
+//				DismissViewController(true,null);
+//			};
+//
+//			var intent = auth.GetUI (); 
+//			PresentViewController(intent,true,null);
+//		}
+ 
 	}
 }
 

@@ -17,3 +17,75 @@ public class ReadAsset : Activity
 Additionally, some Android functions will automatically load asset files:
 
 Typeface tf = Typeface.CreateFromAsset (Context.Assets, "fonts/samplefont.ttf");
+
+========================Explanation========================
+
+Login by google account integration for Xamarin.Android and Xamarin.iOS
+----------------
+Brief: 
+Google Account Login integration helps for the user authentication using their existing google account and fetch their profile
+information like emailid,name and profile pic etc....
+
+[PIC]
+
+===read more
+in my post explained about ------- , ------------,
+
+Decription:
+To increase user friendlyness in the application it is always recommended to avoid unnecessary lenghty form filling/Registration 
+details.
+When the same can be acheived from the other sources like social network media. This may also help to drive more users to your app by 
+faster and easier way of registration process. Here I'm writting about Login by google in Xamarin application android and iOS.
+As of now there were no xamarin component which enables google account integration in Xamarin.Android.
+Even i had this same question earlier [http://stackoverflow.com/questions/25520180/google-account-login-integration-for-android-xamarin/25766256#25766256]
+and going through google developer 
+documentation [https://developers.google.com/identity/protocols/OAuth2] and xamarin forums helped me to get the work around.
+
+[do bold within quote]
+Implementation in  steps: 
+
+1) Register in google developer console 
+
+a) Sign in to google
+https://console.developers.google.com/ 
+Select "Create an empty project" 
+
+b)In the left sidebar, select APIs & auth
+Find Google+ API and select it to "Enable API"
+
+c)Again from Left menu Select "Crdential". Click on "CREATE NEW CLIENT ID" this will open the
+pop up to configure Client Id.
+Select "WebApplication"*
+[*if we registered in developer console as installed application(like android) after making OAuth2Authenticator request
+ it will show window with message "please copy this code switch to your application and paste it there [code]" 
+ manually need to close the window and proceed to authentication. to get ride of this webapplication type is choosen]
+
+Click on Configure Consent screen
+This open ups screen "Consent screen", enter product name & remaining all fields are optional. Here selected Product logo will display during allow permission 
+after login.
+
+[pic]
+
+d) on selecting  "Save"  shows the Pop up screen where enter "Authorized redirect URIs".
+Provide the redirect url with valid url (ex: "http://abcd.com/xyz.aspx") same should be used in the application code. [You can also use 
+https://www.googleapis.com/plus/v1/people/me this as redirect uri. It wont display in app even after redirection from login process].
+you can leave blank "Authorized JavaScript origins" and Click "Create client Id". 
+
+[pic]
+
+2.From the application make an OAuth2Authenticator request.
+Use the xamrin component "Xamarin.Auth". Xamarin.Auth is an Cross-Platform API for authenticating user. So it can be implemented in both 
+android and iOS.
+Instantiate OAuth2Authenticator to make login request to Google Authorization Server,on successful authentication return the "access token".
+[Read more about token limit and expiration https://developers.google.com/identity/protocols/OAuth2] 
+
+3.Google API Request to get Profile Information.
+Pass the access token over Google API[https://www.googleapis.com/oauth2/v1/userinfo?access_token={0}] to get user profile basic information.
+This succsessful REST request returns user information in JSON format (How to make REST request and advantage)[http://appliedcodelog.blogspot.in/2015/06/requesting-rest-webservice-with-json-in.html]
+
+4.Deserialize the JSON response to get data in class object.
+Used the Xamarin component "Json.NET" to deserialize the json response.
+ 
+Final Touch : This is Cross-Platform approach and works well in both android and iOS with sharing maximum code.
+
+Code Snippet: <script src="https://gist.github.com/suchithm/03d6247559c772481217.js"></script>
