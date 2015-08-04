@@ -14,7 +14,6 @@ namespace GoogleLoginSample
 		public string link { get; set; }
 		public string picture { get; set; }
 		public string gender { get; set; }
-	}
-
+	} 
 }
 
